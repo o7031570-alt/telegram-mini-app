@@ -5,13 +5,9 @@
     "buildCommand": "pip install -r requirements.txt"
   },
   "deploy": {
-    "startCommand": "PYTHONPATH=. python backend/app.py",
+    "startCommand": "gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 --threads 4 --timeout 120 app:app",
     "healthcheckPath": "/api/health",
-    "healthcheckTimeout": 120,
-    "restartPolicyType": "ALWAYS",
-    "env": {
-      "PYTHONPATH": ".",
-      "PORT": "8080"
-    }
+    "healthcheckTimeout": 30,
+    "restartPolicyType": "ALWAYS"
   }
 }
