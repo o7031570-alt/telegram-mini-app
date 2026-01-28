@@ -6,11 +6,12 @@
   },
   "deploy": {
     "startCommand": "PYTHONPATH=. python backend/app.py",
-    "healthhealthcheckPathcheckPath": "/api/health",
-    "healthcheckTimeout": 30,
+    "healthcheckPath": "/api/health",
+    "healthcheckTimeout": 120,
     "restartPolicyType": "ALWAYS",
     "env": {
-      "PYTHONPATH": "."
+      "PYTHONPATH": ".",
+      "PORT": "8080"
     }
   }
 }
