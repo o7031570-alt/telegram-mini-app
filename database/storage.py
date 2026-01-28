@@ -3,9 +3,15 @@ import sqlite3
 import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-import psycopg2
-from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
+
+# Try to import psycopg2 for PostgreSQL support
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    HAVE_POSTGRES = True
+except ImportError:
+    HAVE_POSTGRES = False
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +25,13 @@ class DatabaseManager:
     
     def _get_db_type(self):
         """Determine database type from environment"""
-        if "DATABASE_URL" in os.environ:
+        if "DATABASE_URL" in os.environ and HAVE_POSTGRES:
             return "postgres"
         return "sqlite"
     
     def _create_connection(self):
         """Create database connection"""
-        if self.db_type == "postgres":
+        if self.db_type == "postgres" and HAVE_POSTGRES:
             database_url = os.environ.get("DATABASE_URL")
             if database_url:
                 # Handle Heroku-style PostgreSQL URL
@@ -45,7 +51,7 @@ class DatabaseManager:
                     # Fallback to SQLite
                     self.db_type = "sqlite"
         
-        # SQLite fallback
+        # SQLite fallback or default
         os.makedirs("database", exist_ok=True)
         db_path = os.path.join("database", "posts.db")
         conn = sqlite3.connect(db_path)

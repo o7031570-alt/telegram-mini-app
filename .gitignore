@@ -1,31 +1,13 @@
-# Python
 __pycache__/
-*.py[cod]
-*.so
-*.egg-info/
-*.egg
-
-# Environment & Config
+*.pyc
+*.pyo
+*.pyd
+.Python
 .env
-.venv
-env/
 venv/
-config.py
-
-# Database & Logs
-*.db
+env/
 *.sqlite3
-database/posts.db
-logs/
-*.log
-
-# Local Development
-ngrok*
-start_with_lt.py
-bot/telegram_bot.py
-main.py
-
-# OS & IDE
+*.db
+instance/
 .DS_Store
-.vscode/
-.idea/
+*.log
