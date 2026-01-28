@@ -286,10 +286,19 @@ if __name__ == '__main__':
     host = '0.0.0.0'
     debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
     
+    # Run database migration on startup
+    try:
+        from database.migrate import migrate_postgres
+        print("🔄 Running database migration...")
+        if migrate_postgres():
+            print("✅ Database migration completed")
+        else:
+            print("⚠️ Database migration skipped or failed")
+    except Exception as e:
+        print(f"⚠️ Could not run migration: {e}")
+    
     print_startup_info()
     
     print(f"🚀 Starting server on {host}:{port} (debug={debug})")
-    print(f"📁 Current directory: {os.getcwd()}")
-    print(f"📁 Backend directory: {os.path.dirname(os.path.abspath(__file__))}")
     
     app.run(host=host, port=port, debug=debug)
