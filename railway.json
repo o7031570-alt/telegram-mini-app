@@ -5,9 +5,12 @@
     "buildCommand": "pip install -r requirements.txt"
   },
   "deploy": {
-    "startCommand": "python backend/app.py",
-    "healthcheckPath": "/api/health",
+    "startCommand": "PYTHONPATH=. python backend/app.py",
+    "healthhealthcheckPathcheckPath": "/api/health",
     "healthcheckTimeout": 30,
-    "restartPolicyType": "ALWAYS"
+    "restartPolicyType": "ALWAYS",
+    "env": {
+      "PYTHONPATH": "."
+    }
   }
 }
