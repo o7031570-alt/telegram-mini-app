@@ -4,9 +4,10 @@ Flask API backend for Termux - serves posts from SQLite database
 """
 
 import json
+import os
 from pathlib import Path
 from datetime import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import sqlite3
 
@@ -128,6 +129,18 @@ def health_check():
             'timestamp': datetime.now().isoformat()
         }
         return jsonify(response), 500
+
+# ===== ADDED ROUTES TO SERVE FRONTEND =====
+@app.route('/')
+def serve_frontend():
+    # Serve the main index.html file from the frontend directory
+    return send_from_directory(os.path.join('..', 'frontend'), 'index.html')
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    # Serve other static files (CSS, JS, etc.) from the frontend directory
+    return send_from_directory(os.path.join('..', 'frontend'), filename)
+# ==========================================
 
 @app.errorhandler(404)
 def not_found(error):
