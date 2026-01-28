@@ -3,509 +3,761 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Posts Viewer</title>
-    <link rel="stylesheet" href="/style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>For You Today - Telegram Channel Archive</title>
+    <meta name="description" content="Archive and viewer for @for_you_today Telegram channel posts">
+    <meta name="keywords" content="telegram, channel, for you today, archive, posts">
+    <style>
+        :root {
+            --primary-color: #0088cc;
+            --secondary-color: #006699;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .channel-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .channel-link {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        
+        .channel-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .controls {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .search-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .search-btn:hover {
+            background: var(--secondary-color);
+        }
+        
+        .category-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .posts-container {
+            margin-top: 20px;
+        }
+        
+        .post-card {
+            background: var(--card-bg);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .post-category {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .post-timestamp {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .post-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin: 15px 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .post-media {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .post-id {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .page-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .post-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .pagination {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .page-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="header">
-            <h1><span>📱</span>Telegram Posts Viewer</h1>
-            <p id="channelInfo">Loading channel info...</p>
-        </div>
+    <div class="header">
+        <h1>📱 For You Today</h1>
+        <p>Archive and viewer for @for_you_today Telegram channel</p>
         
-        <div class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-value" id="totalPosts">0</div>
-                <div class="stat-label">Total Posts</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="currentCategory">All</div>
-                <div class="stat-label">Current Filter</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="displayedPosts">0</div>
-                <div class="stat-label">Displayed</div>
-            </div>
-        </div>
-        
-        <div class="controls">
-            <div class="filter-row">
-                <select id="categoryFilter">
-                    <option value="">All Categories</option>
-                    <!-- Categories will be loaded dynamically -->
-                </select>
-                <button id="loadPostsBtn">
-                    <span class="btn-text">📥 Load Posts</span>
-                    <span class="spinner" style="display:none;">⏳</span>
-                </button>
-            </div>
-            
-            <div class="filter-row">
-                <select id="mediaTypeFilter">
-                    <option value="">All Media Types</option>
-                    <option value="text">Text</option>
-                    <option value="photo">Photo</option>
-                    <option value="video">Video</option>
-                    <option value="document">Document</option>
-                    <option value="audio">Audio</option>
-                </select>
-                <select id="sortBy">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="posts-container" id="postsContainer">
-            <div class="no-posts" id="noPostsMessage">
-                <div style="font-size:3rem;margin-bottom:10px;">📭</div>
-                <h3>No posts loaded</h3>
-                <p>Select filters and click "Load Posts" to begin</p>
-            </div>
-        </div>
-        
-        <div class="pagination" id="pagination" style="display:none;">
-            <button class="page-btn" id="prevPageBtn" disabled>← Previous</button>
-            <div class="page-info" id="pageInfo">Page 1</div>
-            <button class="page-btn" id="nextPageBtn">Next →</button>
+        <div class="channel-info">
+            <a href="https://t.me/for_you_today" class="channel-link" target="_blank" rel="noopener">
+                📢 @for_you_today Channel
+            </a>
+            <a href="https://t.me/for_you_today_bot" class="channel-link" target="_blank" rel="noopener">
+                🤖 Telegram Bot
+            </a>
         </div>
     </div>
-    
-    <div class="api-status" id="apiStatus">
-        <span class="status-dot"></span>
-        <span class="status-text">Connecting to API...</span>
+
+    <div class="stats" id="statsContainer">
+        <div class="stat-card">
+            <div class="stat-number" id="totalPosts">0</div>
+            <div>Total Posts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="categoriesCount">0</div>
+            <div>Categories</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="lastUpdated">-</div>
+            <div>Last Updated</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" 
+                   class="search-input" 
+                   id="searchInput" 
+                   placeholder="Search posts from @for_you_today..."
+                   onkeypress="if(event.key === 'Enter') searchPosts()">
+            <button class="search-btn" onclick="searchPosts()">Search</button>
+        </div>
+        
+        <div class="category-filters" id="categoryFilters">
+            <button class="category-btn active" onclick="filterPosts('')">All Posts</button>
+            <!-- Categories will be loaded dynamically -->
+        </div>
+    </div>
+
+    <div class="posts-container" id="postsContainer">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading posts from @for_you_today...</p>
+        </div>
+    </div>
+
+    <div class="pagination" id="pagination" style="display: none;">
+        <button class="page-btn" id="prevPage" onclick="changePage(-1)">← Previous</button>
+        <span id="pageInfo">Page 1 of 1</span>
+        <button class="page-btn" id="nextPage" onclick="changePage(1)">Next →</button>
+    </div>
+
+    <div class="footer">
+        <p>📱 Telegram Mini App for @for_you_today channel</p>
+        <p>🤖 Bot Token: 851******* (hidden for security)</p>
+        <p>🔗 API: Backend hosted on Railway</p>
+        <p>📅 Last updated: <span id="currentDate"></span></p>
     </div>
 
     <script>
-        // Use relative path for API calls (same domain)
-        const API_BASE_URL = '/api';
-        let currentCategory = '';
-        let currentMediaType = '';
-        let currentSort = 'newest';
-        let currentPage = 1;
-        let postsPerPage = 10;
-        let totalPosts = 0;
-        let allPosts = [];
+        // Configuration
+        const BACKEND_API = 'https://telegram-mini-app-production-ac29.up.railway.app/'; // Replace with your Railway URL
+        const CHANNEL_USERNAME = '@for_you_today';
+        const CHANNEL_URL = 'https://t.me/for_you_today';
         
+        // State
+        let currentPosts = [];
+        let filteredPosts = [];
+        let currentCategory = '';
+        let currentSearch = '';
+        let currentPage = 1;
+        const postsPerPage = 10;
+        let isLoading = false;
+        let categories = [];
+
         // DOM Elements
         const postsContainer = document.getElementById('postsContainer');
-        const noPostsMessage = document.getElementById('noPostsMessage');
-        const categoryFilter = document.getElementById('categoryFilter');
-        const mediaTypeFilter = document.getElementById('mediaTypeFilter');
-        const sortBy = document.getElementById('sortBy');
-        const loadPostsBtn = document.getElementById('loadPostsBtn');
-        const totalPostsElement = document.getElementById('totalPosts');
-        const currentCategoryElement = document.getElementById('currentCategory');
-        const displayedPostsElement = document.getElementById('displayedPosts');
-        const apiStatus = document.getElementById('apiStatus');
-        const statusDot = apiStatus.querySelector('.status-dot');
-        const statusText = apiStatus.querySelector('.status-text');
+        const statsContainer = document.getElementById('statsContainer');
+        const categoryFilters = document.getElementById('categoryFilters');
+        const searchInput = document.getElementById('searchInput');
         const pagination = document.getElementById('pagination');
-        const prevPageBtn = document.getElementById('prevPageBtn');
-        const nextPageBtn = document.getElementById('nextPageBtn');
-        const pageInfo = document.getElementById('pageInfo');
-        const channelInfo = document.getElementById('channelInfo');
-        
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('Initializing Telegram Mini App...');
-            
-            // Check API health
-            await checkApiHealth();
-            
-            // Load channel info
-            await loadChannelInfo();
-            
-            // Load initial data
-            await loadStats();
-            await loadCategories();
-            
-            // Setup event listeners
-            loadPostsBtn.addEventListener('click', loadPosts);
-            
-            categoryFilter.addEventListener('change', (e) => {
-                currentCategory = e.target.value;
-                currentCategoryElement.textContent = currentCategory || 'All';
-                currentPage = 1;
-            });
-            
-            mediaTypeFilter.addEventListener('change', (e) => {
-                currentMediaType = e.target.value;
-                currentPage = 1;
-            });
-            
-            sortBy.addEventListener('change', (e) => {
-                currentSort = e.target.value;
-                currentPage = 1;
-                renderPosts();
-            });
-            
-            prevPageBtn.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPosts();
-                }
-            });
-            
-            nextPageBtn.addEventListener('click', () => {
-                const totalPages = Math.ceil(allPosts.length / postsPerPage);
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPosts();
-                }
-            });
-            
-            // Auto-load posts after 1 second
-            setTimeout(() => {
-                if (allPosts.length === 0) {
-                    loadPosts();
-                }
-            }, 1000);
-            
-            // Initialize Telegram Web App if available
-            initTelegramWebApp();
+        const totalPostsEl = document.getElementById('totalPosts');
+        const categoriesCountEl = document.getElementById('categoriesCount');
+        const lastUpdatedEl = document.getElementById('lastUpdated');
+        const currentDateEl = document.getElementById('currentDate');
+
+        // Initialize date
+        currentDateEl.textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
-        
-        // Telegram Web App Initialization
-        function initTelegramWebApp() {
-            if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                
-                // Expand to full screen
-                tg.expand();
-                
-                // Set theme colors
-                document.documentElement.style.setProperty('--primary', tg.themeParams.button_color || '#0088cc');
-                document.documentElement.style.setProperty('--primary-dark', tg.themeParams.button_color || '#006699');
-                document.documentElement.style.setProperty('--bg-color', tg.themeParams.bg_color || '#ffffff');
-                document.documentElement.style.setProperty('--text-color', tg.themeParams.text_color || '#000000');
-                
-                // Update user info if available
-                if (tg.initDataUnsafe.user) {
-                    const user = tg.initDataUnsafe.user;
-                    channelInfo.innerHTML = `Welcome, <strong>${user.first_name}</strong>! Viewing posts from channel`;
-                    
-                    // Add user info to API calls if needed
-                    window.userId = user.id;
-                }
-                
-                // Setup back button
-                tg.BackButton.show();
-                tg.BackButton.onClick(() => {
-                    window.history.back();
-                });
-                
-                console.log('Telegram Web App initialized successfully');
-            }
-        }
-        
-        // API Health Check
-        async function checkApiHealth() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/health`);
-                const data = await response.json();
-                
-                if (data.status === 'healthy') {
-                    statusDot.classList.add('connected');
-                    statusText.textContent = 'API Connected';
-                    apiStatus.style.backgroundColor = '#e8f5e9';
-                    return true;
-                } else {
-                    statusText.textContent = 'API Issues';
-                    apiStatus.style.backgroundColor = '#ffebee';
-                    return false;
-                }
-            } catch (error) {
-                console.error('API health check failed:', error);
-                statusText.textContent = 'API Unreachable';
-                apiStatus.style.backgroundColor = '#ffebee';
-                return false;
-            }
-        }
-        
-        // Load channel information
-        async function loadChannelInfo() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/telegram-info`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    const info = data.data;
-                    channelInfo.textContent = `Viewing posts from ${info.channel_username}`;
-                    
-                    // Update page title
-                    document.title = `${info.channel_username} - Posts Viewer`;
-                }
-            } catch (error) {
-                console.error('Failed to load channel info:', error);
-            }
-        }
-        
-        // Load statistics
-        async function loadStats() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/stats`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    totalPosts = data.data.total_posts || 0;
-                    totalPostsElement.textContent = totalPosts.toLocaleString();
-                    
-                    // Update media type filter with actual types
-                    updateMediaFilter(data.data.media_types);
-                }
-            } catch (error) {
-                console.error('Failed to load stats:', error);
-            }
-        }
-        
-        // Update media type filter based on available media types
-        function updateMediaFilter(mediaTypes) {
-            // Clear existing options except first
-            while (mediaTypeFilter.options.length > 1) {
-                mediaTypeFilter.remove(1);
-            }
-            
-            // Add media types that exist in data
-            Object.keys(mediaTypes || {}).forEach(type => {
-                if (type && type !== 'null') {
-                    const option = document.createElement('option');
-                    option.value = type;
-                    option.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} (${mediaTypes[type]})`;
-                    mediaTypeFilter.appendChild(option);
-                }
-            });
-        }
-        
-        // Load categories
-        async function loadCategories() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/categories`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Clear existing options except first
-                    while (categoryFilter.options.length > 1) {
-                        categoryFilter.remove(1);
-                    }
-                    
-                    // Add categories
-                    data.data.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category.name;
-                        option.textContent = `${category.name} (${category.count})`;
-                        categoryFilter.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to load categories:', error);
-            }
-        }
-        
-        // Load posts
-        async function loadPosts() {
-            try {
-                // Show loading state
-                loadPostsBtn.disabled = true;
-                loadPostsBtn.querySelector('.btn-text').textContent = 'Loading...';
-                loadPostsBtn.querySelector('.spinner').style.display = 'inline-block';
-                
-                // Build API URL with parameters
-                const params = new URLSearchParams();
-                if (currentCategory) params.append('category', currentCategory);
-                params.append('limit', 1000); // Get all posts for client-side filtering
-                
-                const url = `${API_BASE_URL}/posts?${params.toString()}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.success) {
-                    allPosts = data.data || [];
-                    displayedPostsElement.textContent = allPosts.length;
-                    
-                    // Process and render posts
-                    processAndRenderPosts();
-                    
-                    // Show/hide elements based on data
-                    if (allPosts.length > 0) {
-                        noPostsMessage.style.display = 'none';
-                        pagination.style.display = 'flex';
-                    } else {
-                        noPostsMessage.style.display = 'block';
-                        pagination.style.display = 'none';
-                    }
-                } else {
-                    showError('Failed to load posts: ' + (data.error || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Error loading posts:', error);
-                showError('Failed to connect to server. Please check your connection.');
-            } finally {
-                // Reset button state
-                loadPostsBtn.disabled = false;
-                loadPostsBtn.querySelector('.btn-text').textContent = '📥 Load Posts';
-                loadPostsBtn.querySelector('.spinner').style.display = 'none';
-            }
-        }
-        
-        // Process and render posts
-        function processAndRenderPosts() {
-            let filteredPosts = [...allPosts];
-            
-            // Apply media type filter
-            if (currentMediaType) {
-                filteredPosts = filteredPosts.filter(post => 
-                    post.media_type === currentMediaType
-                );
-            }
-            
-            // Apply sorting
-            filteredPosts.sort((a, b) => {
-                const dateA = new Date(a.timestamp || a.created_at);
-                const dateB = new Date(b.timestamp || b.created_at);
-                return currentSort === 'newest' ? dateB - dateA : dateA - dateB;
-            });
-            
-            allPosts = filteredPosts;
-            renderPosts();
-        }
-        
-        // Render posts to the page
-        function renderPosts() {
-            // Clear container
-            postsContainer.innerHTML = '';
-            
-            if (allPosts.length === 0) {
-                noPostsMessage.style.display = 'block';
-                pagination.style.display = 'none';
-                displayedPostsElement.textContent = '0';
-                return;
-            }
-            
-            // Calculate pagination
-            const startIndex = (currentPage - 1) * postsPerPage;
-            const endIndex = startIndex + postsPerPage;
-            const pagePosts = allPosts.slice(startIndex, endIndex);
-            
-            // Update pagination controls
-            const totalPages = Math.ceil(allPosts.length / postsPerPage);
-            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-            prevPageBtn.disabled = currentPage === 1;
-            nextPageBtn.disabled = currentPage === totalPages;
-            
-            // Render each post
-            pagePosts.forEach(post => {
-                const postElement = createPostElement(post);
-                postsContainer.appendChild(postElement);
-            });
-            
-            // Update displayed count
-            displayedPostsElement.textContent = allPosts.length;
-        }
-        
-        // Create post element
-        function createPostElement(post) {
-            const div = document.createElement('div');
-            div.className = 'post-card';
-            
-            // Format date
-            const date = new Date(post.timestamp || post.created_at);
-            const formattedDate = date.toLocaleDateString('en-US', {
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            
-            // Media type icons
-            const mediaIcons = {
-                text: '📝',
-                photo: '🖼️',
-                video: '🎬',
-                document: '📄',
-                audio: '🎵',
-                sticker: '🤡'
+        }
+
+        // Get category color
+        function getCategoryColor(category) {
+            const colors = {
+                'news': '#1565c0',
+                'announcement': '#ef6c00',
+                'quotes': '#2e7d32',
+                'photos': '#7b1fa2',
+                'videos': '#c2185b',
+                'media': '#00838f',
+                'general': '#546e7a'
             };
-            
-            const mediaIcon = mediaIcons[post.media_type] || '📋';
-            const categoryClass = `category-${post.category || 'general'}`;
-            
-            // Truncate content if too long
-            const maxLength = 200;
-            let contentPreview = post.content || 'No content';
-            let isTruncated = contentPreview.length > maxLength;
-            
-            if (isTruncated) {
-                contentPreview = contentPreview.substring(0, maxLength) + '...';
-            }
-            
-            // Create HTML structure
-            div.innerHTML = `
-                <div class="post-header">
-                    <span class="post-id">ID: ${post.message_id || post.id}</span>
-                    <span class="post-category ${categoryClass}">${post.category || 'general'}</span>
-                </div>
-                <div class="post-content">
-                    ${escapeHtml(contentPreview)}
-                    ${isTruncated ? '<div class="read-more"><button class="read-more-btn" onclick="toggleReadMore(this)">Read More</button></div>' : ''}
-                </div>
-                <div class="post-footer">
-                    <span class="post-media">${mediaIcon} ${post.media_type || 'text'}</span>
-                    <span class="post-timestamp">📅 ${formattedDate}</span>
-                </div>
-            `;
-            
-            // Store full content for read more functionality
-            if (isTruncated) {
-                div.querySelector('.post-content').dataset.fullContent = post.content;
-            }
-            
-            return div;
+            return colors[category] || '#546e7a';
         }
-        
-        // Global function for read more/less toggle
-        window.toggleReadMore = function(button) {
-            const contentDiv = button.closest('.post-content');
-            const readMoreDiv = button.closest('.read-more');
-            
-            if (contentDiv.classList.contains('expanded')) {
-                // Collapse
-                contentDiv.classList.remove('expanded');
-                const truncated = contentDiv.dataset.fullContent.substring(0, 200) + '...';
-                contentDiv.innerHTML = escapeHtml(truncated) + 
-                    '<div class="read-more"><button class="read-more-btn" onclick="toggleReadMore(this)">Read More</button></div>';
-            } else {
-                // Expand
-                contentDiv.classList.add('expanded');
-                contentDiv.innerHTML = escapeHtml(contentDiv.dataset.fullContent) + 
-                    '<div class="read-more"><button class="read-more-btn" onclick="toggleReadMore(this)">Read Less</button></div>';
+
+        // Render posts
+        function renderPosts(posts) {
+            if (!posts || posts.length === 0) {
+                postsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No posts found</h3>
+                        <p>No posts from @for_you_today match your criteria.</p>
+                        <button class="search-btn" onclick="loadPosts()" style="margin-top: 15px;">
+                            Load All Posts
+                        </button>
+                    </div>
+                `;
+                return;
             }
-        };
-        
-        // Show error message
-        function showError(message) {
-            postsContainer.innerHTML = `
-                <div class="no-posts">
-                    <div style="font-size:3rem;margin-bottom:10px;">⚠️</div>
-                    <h3>Error Loading Posts</h3>
-                    <p>${message}</p>
-                    <button onclick="loadPosts()" style="margin-top:15px;padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;">
-                        Retry
-                    </button>
-                </div>
-            `;
-            noPostsMessage.style.display = 'none';
-            pagination.style.display = 'none';
+
+            let html = '';
+            posts.forEach(post => {
+                html += `
+                    <div class="post-card">
+                        <div class="post-header">
+                            <span class="post-category" style="background: ${getCategoryColor(post.category)}20; color: ${getCategoryColor(post.category)};">
+                                ${post.category}
+                            </span>
+                            <span class="post-timestamp">
+                                📅 ${formatDate(post.timestamp)}
+                            </span>
+                        </div>
+                        
+                        <div class="post-content">
+                            ${escapeHtml(post.content || 'No text content').replace(/\n/g, '<br>')}
+                        </div>
+                        
+                        ${post.additional_info ? `
+                            <div class="post-media">
+                                📎 ${post.additional_info}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="post-footer">
+                            <span>Type: ${post.media_type}</span>
+                            <span class="post-id">ID: ${post.message_id}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            postsContainer.innerHTML = html;
         }
-        
-        // Escape HTML to prevent XSS
+
+        // Escape HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Load posts
+        async function loadPosts() {
+            if (isLoading) return;
+            isLoading = true;
+            
+            postsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading posts from ${CHANNEL_USERNAME}...</p>
+                </div>
+            `;
+            
+            try {
+                let url = `${BACKEND_API}/api/posts`;
+                if (currentCategory) {
+                    url += `?category=${encodeURIComponent(currentCategory)}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPosts = data.data;
+                    filteredPosts = [...currentPosts];
+                    
+                    renderPosts(getCurrentPagePosts());
+                    updateStats(data.data.length);
+                    updatePagination();
+                    
+                    // Load categories if not loaded
+                    if (categories.length === 0) {
+                        loadCategories();
+                    }
+                } else {
+                    throw new Error(data.error || 'Failed to load posts');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                postsContainer.innerHTML = `
+                    <div class="error">
+                        <h3>Error Loading Posts</h3>
+                        <p>${error.message}</p>
+                        <p>Channel: ${CHANNEL_USERNAME}</p>
+                        <button class="search-btn" onclick="loadPosts()" style="margin-top: 10px;">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // Search posts
+        async function searchPosts() {
+            const query = searchInput.value.trim();
+            if (!query) {
+                loadPosts();
+                return;
+            }
+            
+            isLoading = true;
+            currentSearch = query;
+            currentPage = 1;
+            
+            postsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Searching "${query}" in ${CHANNEL_USERNAME}...</p>
+                </div>
+            `;
+            
+            try {
+                let url = `${BACKEND_API}/api/posts/search?q=${encodeURIComponent(query)}`;
+                if (currentCategory) {
+                    url += `&category=${encodeURIComponent(currentCategory)}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    filteredPosts = data.data;
+                    renderPosts(getCurrentPagePosts());
+                    updatePagination();
+                    
+                    // Update search stats
+                    document.getElementById('totalPosts').textContent = data.count;
+                    document.getElementById('categoriesCount').textContent = 'Search';
+                    lastUpdatedEl.textContent = 'Now';
+                } else {
+                    throw new Error(data.error || 'Search failed');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                postsContainer.innerHTML = `
+                    <div class="error">
+                        <h3>Search Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // Load categories
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${BACKEND_API}/api/stats`);
+                const data = await response.json();
+                
+                if (data.success && data.statistics.categories) {
+                    categories = Object.keys(data.statistics.categories);
+                    
+                    // Add category buttons
+                    categories.forEach(category => {
+                        const count = data.statistics.categories[category];
+                        const button = document.createElement('button');
+                        button.className = 'category-btn';
+                        button.textContent = `${category} (${count})`;
+                        button.onclick = () => filterPosts(category);
+                        categoryFilters.appendChild(button);
+                    });
+                    
+                    categoriesCountEl.textContent = categories.length;
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        // Filter posts by category
+        function filterPosts(category) {
+            currentCategory = category;
+            currentPage = 1;
+            
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (category === '') {
+                document.querySelector('.category-btn').classList.add('active');
+            } else {
+                const button = Array.from(document.querySelectorAll('.category-btn'))
+                    .find(btn => btn.textContent.includes(category));
+                if (button) button.classList.add('active');
+            }
+            
+            if (currentSearch) {
+                searchPosts();
+            } else {
+                loadPosts();
+            }
+        }
+
+        // Get current page posts
+        function getCurrentPagePosts() {
+            const startIndex = (currentPage - 1) * postsPerPage;
+            const endIndex = startIndex + postsPerPage;
+            return filteredPosts.slice(startIndex, endIndex);
+        }
+
+        // Update pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+            
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+            
+            pagination.style.display = 'flex';
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        // Change page
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+            const newPage = currentPage + delta;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderPosts(getCurrentPagePosts());
+                updatePagination();
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Update stats
+        function updateStats(count) {
+            totalPostsEl.textContent = count;
+            lastUpdatedEl.textContent = new Date().toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check backend connection first
+            fetch(`${BACKEND_API}/health`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'healthy') {
+                        loadPosts();
+                    } else {
+                        throw new Error('Backend not healthy');
+                    }
+                })
+                .catch(error => {
+                    console.error('Backend check failed:', error);
+                    postsContainer.innerHTML = `
+                        <div class="error">
+                            <h3>Backend Connection Failed</h3>
+                            <p>Cannot connect to the backend server.</p>
+                            <p>Please check if the Railway backend is running.</p>
+                            <p>Backend URL: ${BACKEND_API}</p>
+                            <button class="search-btn" onclick="loadPosts()" style="margin-top: 10px;">
+                                Retry Connection
+                            </button>
+                        </div>
+                    `;
+                });
+        });
     </script>
 </body>
 </html>
