@@ -1,375 +1,858 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For You Today - Telegram Channel Archive</title>
-    <meta name="description" content="Archive and viewer for @for_you_today Telegram channel posts">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Telegram Posts Viewer</title>
     <style>
-        :root {
-            --tg-theme-blue: #0088cc;
-            --tg-theme-light-blue: #24a1de;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-main: #222222;
-            --text-muted: #707579;
-            --border-radius: 12px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-
+        
+        :root {
+            --primary: #0088cc;
+            --primary-dark: #006699;
+            --secondary: #f8f9fa;
+            --text: #202124;
+            --text-light: #5f6368;
+            --border: #dadce0;
+            --card-bg: #ffffff;
+            --success: #34a853;
+            --warning: #fbbc05;
+            --danger: #ea4335;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.5;
-            padding-bottom: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-
-        /* Container */
-        .container {
-            max-width: 600px;
+        
+        .app-container {
+            max-width: 800px;
             margin: 0 auto;
-            padding: 16px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-height: 90vh;
         }
-
-        /* Header */
+        
         .header {
-            background: linear-gradient(135deg, var(--tg-theme-blue), var(--tg-theme-light-blue));
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 24px 16px;
-            border-radius: 0 0 20px 20px;
+            padding: 25px;
             text-align: center;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
         }
-
+        
         .header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 4px;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
-
+        
         .header p {
-            font-size: 0.9rem;
             opacity: 0.9;
+            font-size: 0.95rem;
         }
-
-        /* Stats Bar */
+        
         .stats-bar {
             display: flex;
             justify-content: space-around;
-            background: white;
-            padding: 12px;
-            border-radius: var(--border-radius);
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
+            padding: 15px;
+            background: var(--secondary);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
         }
-
+        
         .stat-item {
             text-align: center;
         }
-
+        
         .stat-value {
-            display: block;
+            font-size: 1.5rem;
             font-weight: bold;
-            color: var(--tg-theme-blue);
-            font-size: 1.1rem;
+            color: var(--primary);
         }
-
+        
         .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 2px;
         }
-
-        /* Search & Filter Section */
+        
         .controls {
+            padding: 20px;
             background: white;
-            padding: 16px;
-            border-radius: var(--border-radius);
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
+            border-bottom: 1px solid var(--border);
         }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 12px;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px 10px 10px 35px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
-        }
-
-        .search-box input:focus {
-            border-color: var(--tg-theme-blue);
-        }
-
-        .filter-tabs {
+        
+        .filter-row {
             display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-            scrollbar-width: none;
+            gap: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
-
-        .filter-tabs::-webkit-scrollbar { display: none; }
-
-        .tab {
-            padding: 6px 14px;
-            background: #f1f1f1;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            white-space: nowrap;
+        
+        select, button {
+            padding: 14px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        select {
+            background: white;
             cursor: pointer;
-            color: var(--text-muted);
-            transition: all 0.2s;
         }
-
-        .tab.active {
-            background: var(--tg-theme-blue);
+        
+        select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-
-        /* Posts Container */
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading-btn .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .posts-container {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
         .post-card {
             background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 16px;
+            border-radius: 15px;
+            padding: 20px;
             margin-bottom: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
             box-shadow: var(--shadow);
-            border-left: 4px solid var(--tg-theme-blue);
-            animation: fadeIn 0.4s ease-out forwards;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        .post-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
-
+        
         .post-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-
+        
+        .post-id {
+            background: var(--secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-family: monospace;
+        }
+        
         .post-category {
-            background: #eef7ff;
-            color: var(--tg-theme-blue);
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-
+        
+        .category-general { background: #e3f2fd; color: #1565c0; }
+        .category-news { background: #f3e5f5; color: #7b1fa2; }
+        .category-media { background: #e8f5e9; color: #2e7d32; }
+        .category-important { background: #ffebee; color: #c62828; }
+        
         .post-content {
-            font-size: 0.95rem;
-            color: var(--text-main);
-            word-wrap: break-word;
-            white-space: pre-wrap;
+            color: var(--text);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            max-height: 150px;
+            overflow: hidden;
+            position: relative;
         }
-
-        /* Loading & Error State */
-        .status-box {
-            text-align: center;
-            padding: 40px 20px;
+        
+        .post-content.expanded {
+            max-height: none;
         }
-
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--tg-theme-blue);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+        
+        .read-more {
+            background: linear-gradient(to top, white, transparent);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 5px;
         }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .error-btn {
-            margin-top: 12px;
-            padding: 8px 20px;
-            background: var(--tg-theme-blue);
+        
+        .read-more-btn {
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
             cursor: pointer;
         }
-
+        
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .post-media {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: var(--secondary);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        
+        .post-timestamp {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        
+        .no-posts {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-light);
+        }
+        
+        .no-posts img {
+            width: 120px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            background: var(--secondary);
+            border-top: 1px solid var(--border);
+        }
+        
+        .page-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .api-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+        
+        .status-dot.connected {
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .app-container {
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                padding: 15px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            select, button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>For You Today</h1>
-        <p><i class="fab fa-telegram"></i> @for_you_today Archive</p>
-    </div>
-
-    <div class="container">
-        <!-- Stats Section -->
+    <div class="app-container">
+        <div class="header">
+            <h1>
+                <span>📱</span>
+                Telegram Posts Viewer
+            </h1>
+            <p>Mini App for viewing saved channel posts</p>
+        </div>
+        
         <div class="stats-bar">
             <div class="stat-item">
-                <span id="total-count" class="stat-value">0</span>
-                <span class="stat-label">စုစုပေါင်း</span>
+                <div class="stat-value" id="totalPosts">0</div>
+                <div class="stat-label">Total Posts</div>
             </div>
             <div class="stat-item">
-                <span id="last-update" class="stat-value">-</span>
-                <span class="stat-label">နောက်ဆုံး</span>
+                <div class="stat-value" id="currentCategory">All</div>
+                <div class="stat-label">Current Filter</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="displayedPosts">0</div>
+                <div class="stat-label">Displayed</div>
             </div>
         </div>
-
-        <!-- Controls Section -->
+        
         <div class="controls">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="search-input" placeholder="ရှာဖွေရန်...">
+            <div class="filter-row">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="general">General</option>
+                    <option value="news">News</option>
+                    <option value="media">Media</option>
+                    <option value="important">Important</option>
+                </select>
+                
+                <button id="loadPostsBtn">
+                    <span class="btn-text">📥 Load Posts</span>
+                    <span class="spinner" style="display: none;"></span>
+                </button>
             </div>
-            <div class="filter-tabs" id="category-tabs">
-                <div class="tab active" data-category="all">အားလုံး</div>
-                <!-- Categories will be added dynamically -->
+            
+            <div class="filter-row">
+                <select id="mediaTypeFilter">
+                    <option value="">All Media Types</option>
+                    <option value="text">Text</option>
+                    <option value="photo">Photo</option>
+                    <option value="video">Video</option>
+                    <option value="document">Document</option>
+                    <option value="audio">Audio</option>
+                </select>
+                
+                <select id="sortBy">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
             </div>
         </div>
-
-        <!-- Posts List -->
-        <div id="posts-container">
-            <div class="status-box">
-                <div class="loader"></div>
-                <p>ပို့စ်များကို ရယူနေပါသည်...</p>
+        
+        <div class="posts-container" id="postsContainer">
+            <div class="no-posts" id="noPostsMessage">
+                <div style="font-size: 3rem; margin-bottom: 10px;">📭</div>
+                <h3>No posts loaded</h3>
+                <p>Select filters and click "Load Posts" to begin</p>
             </div>
         </div>
+        
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="page-btn" id="prevPageBtn" disabled>← Previous</button>
+            <div style="padding: 10px 20px;" id="pageInfo">Page 1</div>
+            <button class="page-btn" id="nextPageBtn">Next →</button>
+        </div>
+    </div>
+    
+    <div class="api-status" id="apiStatus">
+        <span class="status-dot"></span>
+        <span class="status-text">Connecting to API...</span>
     </div>
 
     <script>
-        // Railway Backend API URL
-        const BACKEND_API = 'https://telegram-mini-app-production-459f.up.railway.app/api';
-        
+        // Configuration
+        const API_BASE_URL = 'https://telegram-mini-app-production-ac29.up.railway.app/'; // Change to your Flask server URL
+        let currentCategory = '';
+        let currentMediaType = '';
+        let currentSort = 'newest';
+        let currentPage = 1;
+        const postsPerPage = 10;
+        let totalPosts = 0;
         let allPosts = [];
-        let currentCategory = 'all';
-
-        const postsContainer = document.getElementById('posts-container');
-        const searchInput = document.getElementById('search-input');
-        const totalCountEl = document.getElementById('total-count');
-        const lastUpdateEl = document.getElementById('last-update');
-
-        async function fetchPosts() {
+        
+        // DOM Elements
+        const postsContainer = document.getElementById('postsContainer');
+        const noPostsMessage = document.getElementById('noPostsMessage');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const mediaTypeFilter = document.getElementById('mediaTypeFilter');
+        const sortBy = document.getElementById('sortBy');
+        const loadPostsBtn = document.getElementById('loadPostsBtn');
+        const totalPostsElement = document.getElementById('totalPosts');
+        const currentCategoryElement = document.getElementById('currentCategory');
+        const displayedPostsElement = document.getElementById('displayedPosts');
+        const apiStatus = document.getElementById('apiStatus');
+        const statusDot = apiStatus.querySelector('.status-dot');
+        const statusText = apiStatus.querySelector('.status-text');
+        const pagination = document.getElementById('pagination');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const pageInfo = document.getElementById('pageInfo');
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            checkApiHealth();
+            loadStats();
+            loadCategories();
+            
+            // Event Listeners
+            loadPostsBtn.addEventListener('click', loadPosts);
+            categoryFilter.addEventListener('change', (e) => {
+                currentCategory = e.target.value;
+                currentCategoryElement.textContent = currentCategory || 'All';
+                currentPage = 1;
+            });
+            mediaTypeFilter.addEventListener('change', (e) => {
+                currentMediaType = e.target.value;
+                currentPage = 1;
+            });
+            sortBy.addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                currentPage = 1;
+                renderPosts();
+            });
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPosts();
+                }
+            });
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(allPosts.length / postsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPosts();
+                }
+            });
+            
+            // Load posts automatically after 1 second
+            setTimeout(() => {
+                if (allPosts.length === 0) {
+                    loadPosts();
+                }
+            }, 1000);
+        });
+        
+        // Check API Health
+        async function checkApiHealth() {
             try {
-                const response = await fetch(`${BACKEND_API}/posts`);
-                if (!response.ok) throw new Error('Network error');
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
                 
-                allPosts = await response.json();
-                
-                updateStats(allPosts);
-                renderCategories(allPosts);
-                filterAndRender();
+                if (data.status === 'healthy') {
+                    statusDot.classList.add('connected');
+                    statusText.textContent = 'API Connected';
+                    apiStatus.style.backgroundColor = '#e8f5e9';
+                } else {
+                    statusText.textContent = 'API Issues';
+                    apiStatus.style.backgroundColor = '#ffebee';
+                }
             } catch (error) {
-                console.error(error);
-                postsContainer.innerHTML = `
-                    <div class="status-box">
-                        <i class="fas fa-exclamation-triangle" style="font-size:2rem; color:#e74c3c;"></i>
-                        <p style="margin-top:10px;">Backend နှင့် ချိတ်ဆက်၍မရပါ</p>
-                        <button class="error-btn" onclick="fetchPosts()">ထပ်မံကြိုးစားမည်</button>
+                statusText.textContent = 'API Unreachable';
+                apiStatus.style.backgroundColor = '#ffebee';
+                console.error('API Health check failed:', error);
+            }
+        }
+        
+        // Load Statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/stats`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    totalPosts = data.data.total_posts;
+                    totalPostsElement.textContent = totalPosts.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+        
+        // Load Categories
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Clear existing options (keep "All Categories")
+                    while (categoryFilter.options.length > 1) {
+                        categoryFilter.remove(1);
+                    }
+                    
+                    // Add categories from API
+                    data.data.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.name;
+                        option.textContent = `${category.name} (${category.count})`;
+                        categoryFilter.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load categories:', error);
+            }
+        }
+        
+        // Load Posts from API
+        async function loadPosts() {
+            try {
+                // Show loading state
+                loadPostsBtn.disabled = true;
+                loadPostsBtn.classList.add('loading-btn');
+                loadPostsBtn.querySelector('.btn-text').textContent = 'Loading...';
+                loadPostsBtn.querySelector('.spinner').style.display = 'inline-block';
+                
+                // Build API URL with parameters
+                let url = `${API_BASE_URL}/posts`;
+                const params = new URLSearchParams();
+                
+                if (currentCategory) {
+                    params.append('category', currentCategory);
+                }
+                
+                params.append('limit', 1000); // Get all posts for filtering
+                
+                if (params.toString()) {
+                    url += `?${params.toString()}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allPosts = data.data;
+                    
+                    // Update stats
+                    displayedPostsElement.textContent = allPosts.length;
+                    
+                    // Sort and filter posts
+                    processAndRenderPosts();
+                    
+                    // Hide "no posts" message if we have posts
+                    if (allPosts.length > 0) {
+                        noPostsMessage.style.display = 'none';
+                        pagination.style.display = 'flex';
+                    } else {
+                        noPostsMessage.style.display = 'block';
+                        pagination.style.display = 'none';
+                    }
+                } else {
+                    showError('Failed to load posts: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                showError('Failed to connect to server. Make sure Flask is running.');
+            } finally {
+                // Reset button state
+                loadPostsBtn.disabled = false;
+                loadPostsBtn.classList.remove('loading-btn');
+                loadPostsBtn.querySelector('.btn-text').textContent = '📥 Load Posts';
+                loadPostsBtn.querySelector('.spinner').style.display = 'none';
+            }
+        }
+        
+        // Process and render posts with current filters
+        function processAndRenderPosts() {
+            let filteredPosts = [...allPosts];
+            
+            // Apply media type filter
+            if (currentMediaType) {
+                filteredPosts = filteredPosts.filter(post => 
+                    post.media_type === currentMediaType
+                );
+            }
+            
+            // Apply sorting
+            filteredPosts.sort((a, b) => {
+                const dateA = new Date(a.timestamp);
+                const dateB = new Date(b.timestamp);
+                
+                if (currentSort === 'newest') {
+                    return dateB - dateA; // Newest first
+                } else {
+                    return dateA - dateB; // Oldest first
+                }
+            });
+            
+            allPosts = filteredPosts;
+            renderPosts();
+        }
+        
+        // Render posts with pagination
+        function renderPosts() {
+            postsContainer.innerHTML = '';
+            
+            if (allPosts.length === 0) {
+                noPostsMessage.style.display = 'block';
+                pagination.style.display = 'none';
+                displayedPostsElement.textContent = '0';
+                return;
+            }
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * postsPerPage;
+            const endIndex = startIndex + postsPerPage;
+            const pagePosts = allPosts.slice(startIndex, endIndex);
+            
+            // Update pagination controls
+            const totalPages = Math.ceil(allPosts.length / postsPerPage);
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages;
+            
+            // Render each post
+            pagePosts.forEach(post => {
+                const postElement = createPostElement(post);
+                postsContainer.appendChild(postElement);
+            });
+            
+            // Update displayed count
+            displayedPostsElement.textContent = allPosts.length;
+        }
+        
+        // Create HTML for a single post
+        function createPostElement(post) {
+            const div = document.createElement('div');
+            div.className = 'post-card';
+            
+            // Format date
+            const date = new Date(post.timestamp);
+            const formattedDate = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Media type icon
+            const mediaIcons = {
+                text: '📝',
+                photo: '🖼️',
+                video: '🎬',
+                document: '📄',
+                audio: '🎵',
+                sticker: '🤡'
+            };
+            
+            const mediaIcon = mediaIcons[post.media_type] || '📋';
+            
+            // Category class
+            const categoryClass = `category-${post.category || 'general'}`;
+            
+            // Truncate content for preview
+            const maxLength = 200;
+            let contentPreview = post.content || 'No content';
+            let isTruncated = contentPreview.length > maxLength;
+            
+            if (isTruncated) {
+                contentPreview = contentPreview.substring(0, maxLength) + '...';
+            }
+            
+            div.innerHTML = `
+                <div class="post-header">
+                    <span class="post-id">ID: ${post.message_id}</span>
+                    <span class="post-category ${categoryClass}">
+                        ${post.category || 'general'}
+                    </span>
+                </div>
+                
+                <div class="post-content">
+                    ${escapeHtml(contentPreview)}
+                    ${isTruncated ? `
+                        <div class="read-more">
+                            <button class="read-more-btn" onclick="toggleReadMore(this)">Read More</button>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="post-footer">
+                    <span class="post-media">
+                        ${mediaIcon} ${post.media_type || 'text'}
+                    </span>
+                    <span class="post-timestamp">
+                        📅 ${formattedDate}
+                    </span>
+                </div>
+            `;
+            
+            // Store full content as data attribute
+            if (isTruncated) {
+                const contentDiv = div.querySelector('.post-content');
+                contentDiv.dataset.fullContent = post.content;
+            }
+            
+            return div;
+        }
+        
+        // Toggle read more/less
+        window.toggleReadMore = function(button) {
+            const contentDiv = button.closest('.post-content');
+            const readMoreDiv = button.closest('.read-more');
+            
+            if (contentDiv.classList.contains('expanded')) {
+                // Collapse
+                contentDiv.classList.remove('expanded');
+                button.textContent = 'Read More';
+                readMoreDiv.style.display = 'flex';
+            } else {
+                // Expand
+                contentDiv.classList.add('expanded');
+                contentDiv.innerHTML = escapeHtml(contentDiv.dataset.fullContent) + 
+                    `<div class="read-more">
+                        <button class="read-more-btn" onclick="toggleReadMore(this)">Read Less</button>
                     </div>`;
             }
         }
-
-        function updateStats(posts) {
-            totalCountEl.textContent = posts.length;
-            if (posts.length > 0) {
-                const latest = new Date(posts[0].date);
-                lastUpdateEl.textContent = latest.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-        }
-
-        function renderCategories(posts) {
-            const categories = ['all', ...new Set(posts.map(p => p.category).filter(Boolean))];
-            const tabsContainer = document.getElementById('category-tabs');
-            
-            tabsContainer.innerHTML = categories.map(cat => `
-                <div class="tab ${cat === currentCategory ? 'active' : ''}" data-category="${cat}">
-                    ${cat === 'all' ? 'အားလုံး' : cat}
+        
+        // Show error message
+        function showError(message) {
+            postsContainer.innerHTML = `
+                <div class="no-posts">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
+                    <h3>Error Loading Posts</h3>
+                    <p>${message}</p>
+                    <button onclick="loadPosts()" style="margin-top: 15px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        Retry
+                    </button>
                 </div>
-            `).join('');
-
-            // Add click listeners to new tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    currentCategory = tab.dataset.category;
-                    filterAndRender();
-                });
-            });
+            `;
+            noPostsMessage.style.display = 'none';
+            pagination.style.display = 'none';
         }
-
-        function filterAndRender() {
-            const searchTerm = searchInput.value.toLowerCase();
+        
+        // Utility: Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Telegram Web App Integration (if running in Telegram)
+        if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
             
-            const filtered = allPosts.filter(post => {
-                const matchesSearch = post.text.toLowerCase().includes(searchTerm);
-                const matchesCategory = currentCategory === 'all' || post.category === currentCategory;
-                return matchesSearch && matchesCategory;
-            });
-
-            renderPosts(filtered);
-        }
-
-        function renderPosts(posts) {
-            if (posts.length === 0) {
-                postsContainer.innerHTML = '<div class="status-box"><p>ရှာဖွေမှုမရှိပါ</p></div>';
-                return;
+            // Expand to full height
+            tg.expand();
+            
+            // Set theme colors
+            document.documentElement.style.setProperty('--primary', tg.themeParams.button_color || '#0088cc');
+            document.documentElement.style.setProperty('--primary-dark', tg.themeParams.button_color || '#006699');
+            
+            // Update header with user info
+            if (tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                document.querySelector('.header p').textContent = 
+                    `Hello, ${user.first_name}! Viewing saved channel posts`;
             }
-
-            postsContainer.innerHTML = posts.map(post => `
-                <div class="post-card">
-                    <div class="post-header">
-                        <span class="post-category">${post.category || 'General'}</span>
-                        <span><i class="far fa-clock"></i> ${formatDate(post.date)}</span>
-                    </div>
-                    <div class="post-content">${escapeHTML(post.text)}</div>
-                </div>
-            `).join('');
+            
+            // Send data to bot when needed
+            window.sendDataToBot = function(data) {
+                tg.sendData(JSON.stringify(data));
+            };
         }
-
-        function formatDate(dateStr) {
-            const d = new Date(dateStr);
-            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-        }
-
-        function escapeHTML(str) {
-            const p = document.createElement('p');
-            p.textContent = str;
-            return p.innerHTML.replace(/\n/g, '<br>');
-        }
-
-        // Search Input Listener
-        searchInput.addEventListener('input', filterAndRender);
-
-        // Initial Load
-        document.addEventListener('DOMContentLoaded', fetchPosts);
     </script>
 </body>
 </html>
